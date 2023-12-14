@@ -4,6 +4,7 @@ void showSnackBar(BuildContext context, String text) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
 }
 
+
 Widget heightGap(double x) {
   return SizedBox(height: x);
 }
@@ -14,12 +15,14 @@ Widget widthGap(double x) {
   );
 }
 
+
 Widget cusBoldText(String text, double size) {
   return Text(
     text,
     style: TextStyle(fontSize: size, fontWeight: FontWeight.bold),
   );
 }
+
 
 Widget cusTextField(String label, TextEditingController controller) {
   return TextField(

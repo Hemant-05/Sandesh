@@ -22,6 +22,9 @@ class _LogInScreenState extends State<LogInScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+    var h = size.height;
+    var w = size.width;
     return Scaffold(
       backgroundColor: color,
       body: SingleChildScrollView(
@@ -30,39 +33,18 @@ class _LogInScreenState extends State<LogInScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                height: 150,
-              ),
-              Text(
-                "Log In",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  label: Text("Enter your Email"),
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              TextField(
-                controller: passController,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    label: Text("Enter your password")),
-              ),
+              heightGap(h * 0.2),
+              cusBoldText('Log In', h * .06),
+              heightGap(h * .12),
+              cusTextField('Enter you Email', emailController),
+              heightGap(h * .04),
+              cusTextField('Enter you password', passController),
               heightGap(20),
               ElevatedButton(
                   onPressed: () {
-                    logInUser(emailController.text, passController.text);
+                    var email = emailController.text;
+                    var pass = passController.text;
+                    logInUser(email, pass);
                   },
                   child: Text("Log In")),
               SizedBox(
@@ -76,13 +58,18 @@ class _LogInScreenState extends State<LogInScreen> {
                       await FirebaseAuthMethods(FirebaseAuth.instance)
                           .signInWithGoogle(context);
                     },
-                    child: Image.asset('assets/images/icon_gg.png',width: 28,height: 28,),
+                    child: Image.asset(
+                      'assets/images/icon_gg.png',
+                      width: 28,
+                      height: 28,
+                    ),
                   ),
-                  SizedBox(width: 40,),
+                  SizedBox(
+                    width: 40,
+                  ),
                   IconButton(
                     onPressed: () async {
-                      await FirebaseAuthMethods(FirebaseAuth.instance)
-                      .signInWithFaceBook(context);
+                      print('facebook \n Nothing');
                     },
                     icon: Icon(
                       Icons.facebook,

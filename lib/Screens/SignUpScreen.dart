@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:sandesh/Custom_item/Custom_widgets.dart';
 import 'package:sandesh/Firebase_Services/Firebase_authMethod.dart';
@@ -45,33 +46,38 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              heightGap(h*0.14),
+              heightGap(h * 0.14),
               cusBoldText("Sign Up", (h * .06)),
-              heightGap((h * 0.04)),
+              heightGap((h * 0.12)),
               cusTextField("Enter Email", emailcon),
               heightGap(h * .02),
               cusTextField('Enter Name', namecon),
               heightGap(h * .02),
               cusTextField('Enter Password', passcon),
-              heightGap(h * .02),
+              heightGap(h * .06),
+              InkWell(
+                onTap: () {
+                  Navigator.pushNamed(context, 'login');
+                },
+                child: Text(
+                  'Already have an account',
+                  style: TextStyle(
+                      color: Colors.black,
+                      decoration: TextDecoration.underline),
+                ),
+              ),
+              heightGap(h*0.15),
               ElevatedButton(
-                  onPressed: () {
-                    var email = emailcon.value.text;
-                    var pass = passcon.value.text;
-                    signUpUser(email, pass);
-                  },
-                  child: Text(
-                    "Sign up",
-                  )),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LogInScreen(),
-                        ));
-                  },
-                  child: Text("Go to login"))
+                onPressed: () {
+                  var email = emailcon.value.text;
+                  var pass = passcon.value.text;
+                  print('\n $email \n $pass');
+                  signUpUser(email, pass);
+                },
+                child: Text(
+                  "Sign up",
+                ),
+              ),
             ],
           ),
         ),

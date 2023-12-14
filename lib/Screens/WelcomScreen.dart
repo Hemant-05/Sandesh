@@ -4,7 +4,7 @@ import 'package:sandesh/utils/Colors.dart';
 import 'package:sandesh/utils/TextAll.dart';
 import 'SignUpScreen.dart';
 
-class WelcomScreen extends StatefulWidget{
+class WelcomScreen extends StatefulWidget {
   const WelcomScreen({super.key});
 
   @override
@@ -24,40 +24,48 @@ class _WelcomScreenState extends State<WelcomScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: (h * 0.05),),
-            Image.asset('assets/images/chat_icon2.png',width: (w * .55),height: (h * .3)),
-            SizedBox(height: (h * 0.03),),
+            SizedBox(
+              height: (h * 0.05),
+            ),
+            Image.asset('assets/images/chat_icon2.png',
+                width: (w * .55), height: (h * .3)),
+            SizedBox(
+              height: (h * 0.03),
+            ),
             Text("Welcom \n To \n Sandesh",
                 textAlign: TextAlign.center,
-                style: TextStyle(height: 1.1,fontSize: (h * 0.05), fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    height: 1.1,
+                    fontSize: (h * 0.05),
+                    fontWeight: FontWeight.bold)),
             SizedBox(
               height: (h * 0.02),
             ),
-            Text(
-              welcome_txt,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: (h * 0.026)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                welcome_txt,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: (h * 0.026)),
+              ),
             ),
-            SizedBox(height: (h * 0.16),),
+            SizedBox(
+              height: (h * 0.16),
+            ),
             ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SignUpScreen(),
-                    ),
-                  );
-                },
-                child: Padding(
-                  padding: EdgeInsets.all(5),
-                  child: Text(
-                    "Start",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold),
-                  ),
+              onPressed: () {
+                Navigator.pushNamed(context, 'signup');
+              },
+              child: Padding(
+                padding: EdgeInsets.all(5),
+                child: Text(
+                  "Start",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold),
                 ),
+              ),
             ),
           ],
         ),

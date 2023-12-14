@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:sandesh/Screens/LoginScreen.dart';
 import 'package:sandesh/Screens/SignUpScreen.dart';
 import 'package:sandesh/Screens/SpalshScreen.dart';
+import 'package:sandesh/Screens/WelcomScreen.dart';
 import 'package:sandesh/firebase_options.dart';
 
 void main() async{
@@ -25,6 +27,13 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: SplashScreen(),
+      initialRoute: 'splash',
+      routes: {
+        'splash' : (context) => const SplashScreen(),
+        'welcome': (context) => const WelcomScreen(),
+        'signup' : (context) => const SignUpScreen(),
+        'login': (context) => const LogInScreen()
+      },
     );
   }
 }
