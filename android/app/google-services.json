@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "659879338452-bmntt70lh9liteckmpd52diuldb2mud2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sandesh",
+            "certificate_hash": "bb09a2bc3e2cf4cd0a983032a4b2cf13443c4f6a"
+          }
+        },
+        {
           "client_id": "659879338452-90rbr5gn91dr4a90mr9lm9gj797dp83q.apps.googleusercontent.com",
           "client_type": 3
         }

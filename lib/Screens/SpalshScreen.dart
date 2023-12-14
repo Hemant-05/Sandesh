@@ -12,7 +12,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 2),(){
+    Future.delayed(Duration(seconds: 1),(){
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomScreen() ,));
     });
   }
@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Text("Splash Screen"),
+        child: Image.asset('assets/images/chat_icon.png',width: 200,height: 200,),
       ),
     );
   }

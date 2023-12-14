@@ -1,3 +1,3 @@
 import 'dart:ui';
 
-final bgcolor = Color.fromRGBO(235, 26, 23, 100);
+final color = Color.fromARGB(255, 247, 237, 226);

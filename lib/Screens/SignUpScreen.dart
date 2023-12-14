@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sandesh/Custom_item/Custom_widgets.dart';
 import 'package:sandesh/Firebase_Services/Firebase_authMethod.dart';
 import 'package:sandesh/Screens/LoginScreen.dart';
+import 'package:sandesh/utils/Colors.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -25,80 +27,51 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  void signUpUser(String email,String pass)async{
-    FirebaseAuthMethods(
-        FirebaseAuth.instance
-    ).signUpWithEmail(
-        email: email,
-        pass: pass,
-        context: context);
+  void signUpUser(String email, String pass) async {
+    FirebaseAuthMethods(FirebaseAuth.instance)
+        .signUpWithEmail(email: email, pass: pass, context: context);
   }
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+    var h = size.height;
+    var w = size.width;
     return Scaffold(
+      backgroundColor: color,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                height: 100,
-              ),
-              Text(
-                "Sign Up",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              TextField(
-                controller: emailcon,
-                decoration: InputDecoration(
-                    label: Text("Enter Email"),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12))),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              TextField(
-                decoration: InputDecoration(
-                    label: Text("Enter name"),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12))),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              TextField(
-                decoration: InputDecoration(
-                    label: Text("Enter Number"),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12))),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              TextField(
-                controller: passcon,
-                decoration: InputDecoration(
-                    label: Text("Enter pass"),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12))),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              ElevatedButton(onPressed: (){
-                var email = emailcon.value.text;
-                var pass = passcon.value.text;
-                signUpUser(email,pass);
-              }, child: Text("Sign up",)),
-              ElevatedButton(onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder:(context) => LogInScreen(), ));
-              }, child: Text("Go to login"))
+              heightGap(h*0.14),
+              cusBoldText("Sign Up", (h * .06)),
+              heightGap((h * 0.04)),
+              cusTextField("Enter Email", emailcon),
+              heightGap(h * .02),
+              cusTextField('Enter Name', namecon),
+              heightGap(h * .02),
+              cusTextField('Enter Password', passcon),
+              heightGap(h * .02),
+              ElevatedButton(
+                  onPressed: () {
+                    var email = emailcon.value.text;
+                    var pass = passcon.value.text;
+                    signUpUser(email, pass);
+                  },
+                  child: Text(
+                    "Sign up",
+                  )),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LogInScreen(),
+                        ));
+                  },
+                  child: Text("Go to login"))
             ],
           ),
         ),
