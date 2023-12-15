@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:sandesh/Screens/HomeScreen.dart';
 import 'package:sandesh/Screens/LoginScreen.dart';
 import 'package:sandesh/Screens/SignUpScreen.dart';
 import 'package:sandesh/Screens/SpalshScreen.dart';
@@ -16,7 +18,6 @@ await Firebase.initializeApp(
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  // This widget is the root of your application
   @override
   Widget build(BuildContext context){
     return MaterialApp(
@@ -32,7 +33,8 @@ class MyApp extends StatelessWidget {
         'splash' : (context) => const SplashScreen(),
         'welcome': (context) => const WelcomScreen(),
         'signup' : (context) => const SignUpScreen(),
-        'login': (context) => const LogInScreen()
+        'login': (context) => const LogInScreen(),
+        'home' : (context) =>  const HomeScreen(),
       },
     );
   }

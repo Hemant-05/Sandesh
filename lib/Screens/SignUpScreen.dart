@@ -3,9 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:sandesh/Custom_item/Custom_widgets.dart';
 import 'package:sandesh/Firebase_Services/Firebase_authMethod.dart';
-import 'package:sandesh/Screens/LoginScreen.dart';
 import 'package:sandesh/utils/Colors.dart';
-
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -30,7 +28,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void signUpUser(String email, String pass) async {
     FirebaseAuthMethods(FirebaseAuth.instance)
-        .signUpWithEmail(email: email, pass: pass, context: context);
+        .signInWithEmail(email: email, pass: pass, context: context).then((user) => {
+          if(user != null){
+            Navigator.pushReplacementNamed(context,'home'),
+            showSnackBar(context,"Sign Up as ${user.email}")
+          }else{
+            showSnackBar(context,"Some error occured when creating account....")
+          }
+    });
   }
 
   @override
@@ -74,7 +79,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   print('\n $email \n $pass');
                   signUpUser(email, pass);
                 },
-                child: Text(
+                child: const Text(
                   "Sign up",
                 ),
               ),

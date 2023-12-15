@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sandesh/Screens/WelcomScreen.dart';
 
@@ -9,11 +10,19 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   void initState() {
     super.initState();
     Future.delayed(Duration(seconds: 1),(){
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomScreen() ,));
+      if(_auth.currentUser != null){
+        Navigator.pushReplacementNamed(context, 'home');
+      }
+      else
+      {
+        Navigator.pushNamed(context, 'signup');
+      }
     });
   }
   @override

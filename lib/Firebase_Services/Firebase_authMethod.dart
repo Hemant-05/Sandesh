@@ -9,8 +9,8 @@ class FirebaseAuthMethods {
 
   FirebaseAuthMethods(this._auth);
 
-  //EMAIL SIGN UP
-  Future<User?> signUpWithEmail(
+  //EMAIL SIGN IN
+  Future<User?> signInWithEmail(
       {required String email,
       required String pass,
       required BuildContext context}) async {
@@ -19,10 +19,13 @@ class FirebaseAuthMethods {
       user = (await _auth.createUserWithEmailAndPassword(email: email, password: pass)).user;
       if(user != null){
         await sendEmailVerification(context);
-        showSnackBar(context, "Done");
       }
     } on FirebaseAuthException catch (e) {
-      showSnackBar(context, "Some Error Accured !");
+      if(e.code == 'week-password'){
+        showSnackBar(context, 'week password');
+      }else {
+        showSnackBar(context, e.message!);
+      }
     }
     return user;
   }
@@ -34,8 +37,6 @@ class FirebaseAuthMethods {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       final GoogleSignInAuthentication? googleAuth =
           await googleUser?.authentication;
-      // if(googleAuth?.accessToken != null && googleAuth?.idToken != null)
-      //   {
       final credential = GoogleAuthProvider.credential(
         idToken: googleAuth?.idToken,
         accessToken: googleAuth?.accessToken,
@@ -43,8 +44,6 @@ class FirebaseAuthMethods {
       UserCredential userCredential =
           await _auth.signInWithCredential(credential);
       user = userCredential.user;
-      // }
-      showSnackBar(context, 'All Done..');
     } on FirebaseAuthException catch (e) {
       showSnackBar(context, e.message!);
     }
@@ -59,9 +58,6 @@ class FirebaseAuthMethods {
     User? user;
     try {
       user = (await _auth.signInWithEmailAndPassword(email: email, password: pass)).user;
-      if(user != null){
-        showSnackBar(context, 'Me Loged in');
-      }
     } on FirebaseAuthException catch (e) {
       showSnackBar(context, e.message!);
     }
@@ -77,4 +73,15 @@ class FirebaseAuthMethods {
       showSnackBar(context, e.message!);
     }
   }
+
+  // LOG OUT
+Future<void> logOut(BuildContext context) async {
+    try{
+      await _auth.signOut().then((value) => {
+        Navigator.pushReplacementNamed(context, 'signup')
+      });
+    }catch(e){
+      showSnackBar(context, "Error while Logging out !!");
+    }
+}
 }
