@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sandesh/Custom_item/Custom_widgets.dart';
 import 'package:sandesh/Firebase_Services/Firebase_authMethod.dart';
-import 'package:sandesh/Screens/HomeScreen.dart';
 import 'package:sandesh/utils/Colors.dart';
 
 class LogInScreen extends StatefulWidget {

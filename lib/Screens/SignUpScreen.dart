@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:sandesh/Custom_item/Custom_widgets.dart';
 import 'package:sandesh/Firebase_Services/Firebase_authMethod.dart';
@@ -26,9 +25,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  void signUpUser(String email, String pass) async {
+  void signUpUser(String email, String pass,String name) async {
     FirebaseAuthMethods(FirebaseAuth.instance)
-        .signInWithEmail(email: email, pass: pass, context: context).then((user) => {
+        .signInWithEmail(email: email, pass: pass,name: name, context: context).then((user) => {
           if(user != null){
             Navigator.pushReplacementNamed(context,'home'),
             showSnackBar(context,"Sign Up as ${user.email}")
@@ -76,8 +75,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 onPressed: () {
                   var email = emailcon.value.text;
                   var pass = passcon.value.text;
-                  print('\n $email \n $pass');
-                  signUpUser(email, pass);
+                  var name = namecon.value.text;
+                  signUpUser(email,pass,name);
                 },
                 child: const Text(
                   "Sign up",

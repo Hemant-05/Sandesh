@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sandesh/utils/Colors.dart';
 import 'package:sandesh/utils/TextAll.dart';
 import 'SignUpScreen.dart';

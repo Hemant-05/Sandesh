@@ -1,10 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:sandesh/Screens/HomeScreen.dart';
 import 'package:sandesh/Screens/LoginScreen.dart';
+import 'package:sandesh/Screens/OtherUserProfile.dart';
 import 'package:sandesh/Screens/SignUpScreen.dart';
 import 'package:sandesh/Screens/SpalshScreen.dart';
+import 'package:sandesh/Screens/UserProfileScreen.dart';
 import 'package:sandesh/Screens/WelcomScreen.dart';
 import 'package:sandesh/firebase_options.dart';
 
@@ -27,14 +28,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: SplashScreen(),
-      initialRoute: 'splash',
+      home: const SplashScreen(),
       routes: {
         'splash' : (context) => const SplashScreen(),
         'welcome': (context) => const WelcomScreen(),
         'signup' : (context) => const SignUpScreen(),
         'login': (context) => const LogInScreen(),
-        'home' : (context) =>  const HomeScreen(),
+        'home' : (context) => const HomeScreen(),
+        'userprofile' :(context) =>  UserProfileScreen(),
+        'otherprofile' : (context) => const OtherUserProfileScreen(),
+        //'chat' : (context) => const ChatScreen(),
       },
     );
   }
