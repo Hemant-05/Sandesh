@@ -8,6 +8,7 @@ class FirebaseAuthMethods {
   final FirebaseAuth _auth;
 
   FirebaseAuthMethods(this._auth);
+  final FirebaseFirestore _firesotre = FirebaseFirestore.instance;
 
   //EMAIL SIGN IN
   Future<User?> signInWithEmail(
@@ -15,7 +16,6 @@ class FirebaseAuthMethods {
       required String pass,
       required String name,
       required BuildContext context}) async {
-    FirebaseFirestore _firesotre = FirebaseFirestore.instance;
     User? user;
     try {
       user = (await _auth.createUserWithEmailAndPassword(
@@ -26,7 +26,7 @@ class FirebaseAuthMethods {
         await _firesotre
             .collection('users')
             .doc(user.uid)
-            .set({'name': name, 'email': email, 'status': "Unavailable"});
+            .set({'name': name, 'email': email, 'status': "Unavailable",'uid' : _auth.currentUser?.uid});
         await sendEmailVerification(context);
       }
     } on FirebaseAuthException catch (e) {
@@ -53,6 +53,14 @@ class FirebaseAuthMethods {
       UserCredential userCredential =
           await _auth.signInWithCredential(credential);
       user = userCredential.user;
+      if(user != null){
+        await _firesotre.collection('users').doc(user.uid).set({
+          'name' : user.displayName,
+          'email' : user.email,
+          'status' : "Unavailable",
+          'uid' : user.uid,
+        });
+      }
     } on FirebaseAuthException catch (e) {
       showSnackBar(context, e.message!);
     }

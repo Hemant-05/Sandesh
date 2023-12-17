@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:sandesh/Group_Works/GroupsScreen.dart';
 import 'package:sandesh/Screens/HomeScreen.dart';
 import 'package:sandesh/Screens/LoginScreen.dart';
 import 'package:sandesh/Screens/OtherUserProfile.dart';
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         'home' : (context) => const HomeScreen(),
         'userprofile' :(context) =>  UserProfileScreen(),
         'otherprofile' : (context) => const OtherUserProfileScreen(),
+        'groups' : (context) => const GroupsScreen(),
         //'chat' : (context) => const ChatScreen(),
       },
     );

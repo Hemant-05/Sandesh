@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sandesh/Custom_item/Custom_widgets.dart';
 import 'package:sandesh/Firebase_Services/Firebase_authMethod.dart';
+import 'package:sandesh/Group_Works/GroupsScreen.dart';
 import 'package:sandesh/Screens/ChatScreen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,17 +13,46 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Map<String, dynamic>? userMap;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   final TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    setStatus('Online');
+    getAllUsersList();
+  }
+
+  void getAllUsersList() async {
+    var list = await _firestore.collection('users');
+  }
+
+  void setStatus(String status) async {
+    await _firestore.collection('users').doc(_auth.currentUser?.uid).update({
+      'status': status,
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setStatus('Online');
+    } else {
+      setStatus('Offline');
+    }
+  }
 
   void onSearch(String search) async {
     FirebaseFirestore _firestore = FirebaseFirestore.instance;
     try {
       await _firestore
           .collection('users')
-          .where('email', isEqualTo: search)
+          .where('name', isEqualTo: search)
           .get()
           .then((value) {
         setState(
@@ -33,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
         print(userMap);
       });
     } catch (e) {
+      userMap = null;
       print(e.toString());
     }
   }
@@ -54,9 +85,10 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             onPressed: () {
+              setStatus('Offline');
               FirebaseAuthMethods(FirebaseAuth.instance).logOut(context);
             },
-            icon: Icon(Icons.exit_to_app),
+            icon: const Icon(Icons.exit_to_app),
             tooltip: 'Log Out',
           )
         ],
@@ -89,8 +121,9 @@ class _HomeScreenState extends State<HomeScreen> {
             userMap != null
                 ? ListTile(
                     onTap: () {
+                      searchController.clear();
                       String? u1 = _auth.currentUser?.displayName;
-                      String chattingId = chatId( u1! , userMap?['name']);
+                      String chattingId = chatId(u1!, userMap?['name']);
                       print(chattingId);
                       Navigator.push(
                         context,
@@ -106,8 +139,31 @@ class _HomeScreenState extends State<HomeScreen> {
                     trailing: Icon(Icons.message),
                   )
                 : Container(),
+            /*Expanded(
+              child: Container(
+                color: Colors.grey,
+                child: StreamBuilder(
+                  stream: _firestore.collection('users').snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>>
+                          snapshot) {
+                    return ListView.builder(itemBuilder: (context,index){
+                      return ListTile(
+                        title: Text(snapshot.data.toString()),
+                      );
+                    },);
+                  },
+                ),
+              ),
+            ),*/
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.group),
+        onPressed: (){
+          Navigator.pushNamed(context, 'groups');
+        },
       ),
     );
   }

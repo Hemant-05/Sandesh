@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sandesh/Custom_item/Custom_widgets.dart';
 import 'package:sandesh/Firebase_Services/Firebase_authMethod.dart';
 import 'package:sandesh/utils/Colors.dart';
+
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -25,16 +26,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  void signUpUser(String email, String pass,String name) async {
+  void signUpUser(String email, String pass, String name) async {
     FirebaseAuthMethods(FirebaseAuth.instance)
-        .signInWithEmail(email: email, pass: pass,name: name, context: context).then((user) => {
-          if(user != null){
-            Navigator.pushReplacementNamed(context,'home'),
-            showSnackBar(context,"Sign Up as ${user.email}")
-          }else{
-            showSnackBar(context,"Some error occured when creating account....")
-          }
-    });
+        .signInWithEmail(email: email, pass: pass, name: name, context: context)
+        .then((user) => {
+              if (user != null)
+                {
+                  Navigator.pushReplacementNamed(context, 'home'),
+                  showSnackBar(context, "Sign Up as ${user.email}")
+                }
+              else
+                {
+                  showSnackBar(
+                      context, "Some error occured when creating account....")
+                }
+            });
   }
 
   @override
@@ -66,20 +72,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Text(
                   'Already have an account',
                   style: TextStyle(
+                      fontSize: h * 0.02,
                       color: Colors.black,
                       decoration: TextDecoration.underline),
                 ),
               ),
-              heightGap(h*0.15),
+              heightGap(h * 0.15),
               ElevatedButton(
                 onPressed: () {
                   var email = emailcon.value.text;
                   var pass = passcon.value.text;
                   var name = namecon.value.text;
-                  signUpUser(email,pass,name);
+                  signUpUser(email, pass, name);
                 },
-                child: const Text(
-                  "Sign up",
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Sign up",
+                    style: TextStyle(fontSize: (h * 0.026)),
+                  ),
                 ),
               ),
             ],
