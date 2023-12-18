@@ -87,9 +87,13 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   onPressed: () {
                     String gChat = gChatController.value.text;
                   },
-                  icon: const Icon(
-                    Icons.send_rounded,
-                    size: 30,
+                  icon: Transform.rotate(
+                    angle: 5.4,
+                    child: Icon(
+                      Icons.send_rounded,
+                      size: 30,
+                      color: Colors.blue,
+                    ),
                   ),
                 )
               ],
