@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sandesh/Custom_item/Custom_widgets.dart';
-import 'package:sandesh/Group_Works/Create_Group/AddMembersInGroup.dart';
 import 'package:sandesh/Screens/HomeScreen.dart';
 import 'package:uuid/uuid.dart';
 
@@ -17,15 +17,16 @@ class CreateNewGroup extends StatefulWidget {
 class _CreateNewGroupState extends State<CreateNewGroup> {
   final TextEditingController groupNameCon = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   createGroup(String groupName) async {
     String groupId = Uuid().v1();
-    await _firestore.collection('groups').doc('groupId').set({
+    await _firestore.collection('groups').doc(groupId).set({
       'members': widget.membersList,
       'id': groupId,
     });
 
-    for (int i = 0; i < widget.membersList.length; i++) {
+    for (int i = 0; i < widget.membersList.length; i++){
       String uid = widget.membersList[i]['uid'];
       await _firestore
           .collection('users')
@@ -39,6 +40,11 @@ class _CreateNewGroupState extends State<CreateNewGroup> {
         },
       );
     }
+    await _firestore.collection('groups').doc(groupId).collection('chats').add({
+      'message' : '${_auth.currentUser?.displayName} created this group',
+      'type' : 'notify',
+      'time' : FieldValue.serverTimestamp(),
+    });
   }
 
   @override
@@ -69,11 +75,6 @@ class _CreateNewGroupState extends State<CreateNewGroup> {
               },
               child: Text('Create Group'),
             ),
-            /*Flexible(child: ListView.builder(itemBuilder: (context,index){
-              return ListTile(
-
-              );
-            },),),*/
           ],
         ),
       ),

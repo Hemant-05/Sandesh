@@ -155,12 +155,15 @@ class ChatScreen extends StatelessWidget {
                                     ? Alignment.centerRight
                                     : Alignment.centerLeft,
                                 child: InkWell(
+
                                   onTap: () {
+                                    var tag = map['message'];
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => showImageScreen(
                                           url: map['message'],
+                                          tag: '$tag',
                                         ),
                                       ),
                                     );
@@ -178,7 +181,7 @@ class ChatScreen extends StatelessWidget {
                                             color: Colors.black, width: 1)),
                                     child: map['message'] != ' '
                                         ? Hero(
-                                            tag: 'chatImage',
+                                            tag: '${map['message']}',
                                             child: Image.network(
                                               map['message'],
                                               fit: BoxFit.cover,
@@ -251,8 +254,8 @@ class ChatScreen extends StatelessWidget {
 
 class showImageScreen extends StatelessWidget {
   String url;
-
-  showImageScreen({super.key, required this.url});
+  String tag;
+  showImageScreen({super.key,required this.tag,required this.url});
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +264,7 @@ class showImageScreen extends StatelessWidget {
       body: Container(
         alignment: Alignment.center,
         child: Hero(
-          tag: 'chatImage',
+          tag: '$tag',
           child: Image.network(
             url,
           ),

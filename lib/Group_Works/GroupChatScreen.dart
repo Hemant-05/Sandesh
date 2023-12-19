@@ -1,9 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sandesh/Custom_item/Custom_widgets.dart';
 import 'package:sandesh/Group_Works/GroupInfoScreen.dart';
 
 class GroupChatScreen extends StatefulWidget {
-  const GroupChatScreen({super.key});
+  final String groupName;
+final String groupId;
+  const GroupChatScreen({required this.groupName, super.key, required this.groupId});
 
   @override
   State<GroupChatScreen> createState() => _GroupChatScreenState();
@@ -11,42 +15,30 @@ class GroupChatScreen extends StatefulWidget {
 
 class _GroupChatScreenState extends State<GroupChatScreen> {
   final TextEditingController gChatController = TextEditingController();
-  String currentUN = "Hemant";
-  List<Map<String, dynamic>> chatList = [
-    {
-      'message': 'Hemant created this group',
-      'type': 'notify',
-    },
-    {'message': 'Hallu \n kya kar rahe ho', 'sendBy': 'Hemant', 'type': 'text'},
-    {'message': 'Hay \n kya kar rahe ho', 'sendBy': 'Saloni', 'type': 'text'},
-    {'message': 'Hiiiii \n kya kar rahe ho', 'sendBy': 'Vivek', 'type': 'text'},
-    {
-      'message': 'Hello \nbro kya kar rahe ho',
-      'sendBy': 'Sourabh',
-      'type': 'text'
-    },
-    {
-      'message': 'hello \nkya kar rahe ho',
-      'sendBy': 'shresthi',
-      'type': 'text'
-    },
-    {'message': 'Hemant add Sarita', 'type': 'notify'}
-  ];
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+void onSendMessage(String msg)async{
+  Map<String,dynamic> chatData = {
+    'sendBy': _auth.currentUser?.displayName,
+    'message' : msg,
+    'type' : 'text',
+    'time' : FieldValue.serverTimestamp(),
+  };
+  await  _firestore.collection('groups').doc(widget.groupId).collection('chats').add(chatData);
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text(
-            'Group hall',
-          ),
+          title: Text(widget.groupName),
           actions: [
             IconButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => GroupInfoScreen(),
+                      builder: (context) => GroupInfoScreen(groupId: widget.groupId,groupName: widget.groupName,),
                     ),
                   );
                 },
@@ -55,7 +47,28 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
           backgroundColor: Colors.blue),
       body: Column(
         children: [
-          Expanded(child: messageBuilder(chatList)),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _firestore.collection('groups').doc(widget.groupId).collection('chats').orderBy('time').snapshots(),
+              builder: (context,snapshot){
+                if(snapshot.hasData){
+                  return SingleChildScrollView(
+                    reverse: true,
+                    child: ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: snapshot.data?.docs.length,
+                        itemBuilder: (context,index){
+                      Map<String,dynamic> map = snapshot.data?.docs[index].data() as Map<String,dynamic>;
+                      return messageBuilder(map);
+                    }),
+                  );
+                }else{
+                  return Container();
+                }
+              },
+            )
+          ),
           heightGap(5),
           // sending button and chat text field
           Container(
@@ -85,15 +98,18 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                 ),
                 IconButton(
                   onPressed: () {
-                    String gChat = gChatController.value.text;
+                    String chat = gChatController.value.text;
+                    if(chat.isEmpty){
+                      showSnackBar(context, 'Write something !');
+                    }else{
+                      onSendMessage(chat);
+                      gChatController.clear();
+                    }
                   },
-                  icon: Transform.rotate(
-                    angle: 5.4,
-                    child: Icon(
-                      Icons.send_rounded,
-                      size: 30,
-                      color: Colors.blue,
-                    ),
+                  icon: Icon(
+                    Icons.send_rounded,
+                    size: 30,
+                    color: Colors.blue,
                   ),
                 )
               ],
@@ -104,81 +120,75 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     );
   }
 
-  Widget messageBuilder(List<Map<String, dynamic>> chatList) {
-    return Container(
-      child: ListView.builder(
-        itemCount: chatList.length,
-        itemBuilder: (context, index) {
-          Map<String, dynamic> map = chatList[index];
-          if (map['type'] == 'text') {
-            return Container(
-              alignment: map['sendBy'] == currentUN
-                  ? Alignment.centerRight
-                  : Alignment.centerLeft,
-              child: Container(
-                margin: EdgeInsets.all(2),
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                    color: Colors.blue, borderRadius: BorderRadius.circular(8)),
-                child: Column(
-                  children: [
-                    Text(
-                      '${map['sendBy']}',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                    Text(
-                      map['message'],
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          } else if (map['type'] == 'img') {
-            return Container(
-              alignment: map['sendBy'] == currentUN
-                  ? Alignment.centerRight
-                  : Alignment.centerLeft,
-              child: Container(
-                margin: EdgeInsets.all(2),
-                padding: EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                    color: Colors.blue, borderRadius: BorderRadius.circular(8)),
-                child: Column(
-                  children: [
-                    Text(
-                      '${map['sendBy']}',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                    Image.network(map['message'])
-                  ],
-                ),
-              ),
-            );
-          } else if (map['type'] == 'notify') {
-            return Container(
-              alignment: Alignment.center,
-              child: Container(
-                margin: EdgeInsets.all(4),
-                padding: EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                    color: Colors.grey, borderRadius: BorderRadius.circular(8)),
-                child: Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: Text(
-                    map['message'],
-                    style: TextStyle(fontSize: 14, color: Colors.white),
+  Widget messageBuilder(Map<String, dynamic> map) {
+  bool check = map['sendBy'] == _auth.currentUser?.displayName;
+  String name = check? 'You' : '${map['sendBy']}';
+        if (map['type'] == 'text') {
+          return Container(
+            alignment: map['sendBy'] == _auth.currentUser?.displayName
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
+            child: Container(
+              margin: EdgeInsets.all(2),
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                  color: Colors.blue, borderRadius: BorderRadius.circular(8)),
+              child: Column(
+                children: [
+                  Text(
+                    '$name',
+                    style: TextStyle(fontSize: 12, color: Colors.white),
                   ),
+                  Text(
+                    map['message'],
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          );
+        } else if (map['type'] == 'img') {
+          return Container(
+            alignment: map['sendBy'] == _auth.currentUser?.displayName
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
+            child: Container(
+              margin: EdgeInsets.all(2),
+              padding: EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                  color: Colors.blue, borderRadius: BorderRadius.circular(8)),
+              child: Column(
+                children: [
+                  Text(
+                    '$name',
+                    style: TextStyle(fontSize: 12, color: Colors.white),
+                  ),
+                  Image.network(map['message'])
+                ],
+              ),
+            ),
+          );
+        } else if (map['type'] == 'notify') {
+          return Container(
+            alignment: Alignment.center,
+            child: Container(
+              margin: EdgeInsets.all(2),
+              padding: EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                  color: Colors.grey, borderRadius: BorderRadius.circular(8),),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Text(
+                  map['message'],
+                  style: TextStyle(fontSize: 12, color: Colors.white),
                 ),
               ),
-            );
-          } else {
-            return Container(
-              child: Text('Error'),
-            );
-          }
-        },
-      ),
-    );
+            ),
+          );
+        } else {
+          return Container(
+            child: Text('Error'),
+          );
+        }
   }
 }

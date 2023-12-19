@@ -1,51 +1,38 @@
-import 'package:flutter/material.dart';
-import 'package:sandesh/Custom_item/Custom_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:sandesh/Group_Works/Create_Group/CreateNewGroup.dart';
+import 'package:flutter/material.dart';
+import 'package:sandesh/Custom_item/Custom_widgets.dart';
+import 'package:sandesh/Group_Works/GroupsScreen.dart';
+import 'package:sandesh/Screens/HomeScreen.dart';
 
-class AddMembersInGroup extends StatefulWidget {
-  const AddMembersInGroup({super.key});
+class AddMembers extends StatefulWidget {
+  final String groupId;
+  final String groupName;
+  final List membersList;
+
+  const AddMembers(
+      {super.key,
+      required this.groupId,
+      required this.groupName,
+      required this.membersList});
 
   @override
-  State<AddMembersInGroup> createState() => _AddMembersInGroupState();
+  State<AddMembers> createState() => _AddMembersState();
 }
 
-class _AddMembersInGroupState extends State<AddMembersInGroup> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+class _AddMembersState extends State<AddMembers> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  List<Map<String, dynamic>> membersList = [];
-  final TextEditingController searchUserCon = TextEditingController();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  TextEditingController searchUser = TextEditingController();
+  List membersList = [];
+  List newMembersList = [];
   Map<String, dynamic>? userMap;
+  String addedUserName = '';
 
   @override
   void initState() {
     super.initState();
-    getCurrentUserDetails();
-  }
-
-  getCurrentUserDetails() async {
-    try {
-      await _firestore
-          .collection('users')
-          .doc(_auth.currentUser?.uid)
-          .get()
-          .then(
-        (map) {
-          setState(() {
-            membersList.add({
-              'name': map['name'],
-              'email': map['email'],
-              'uid': map['uid'],
-              'isAdmin': true,
-            });
-          });
-          print(map);
-        },
-      );
-    } catch (e) {
-      print(e);
-    }
+    membersList = widget.membersList;
   }
 
   void onSearch(String search) async {
@@ -67,31 +54,25 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
 
   void onSearchResult() async {
     bool isAlreadyExist = false;
+    Map<String, dynamic> temp;
     for (int i = 0; i < membersList.length; i++) {
       if (membersList[i]['uid'] == userMap?['uid']) isAlreadyExist = true;
     }
     if (!isAlreadyExist) {
       setState(() {
-        membersList.add({
+        temp = {
           'name': userMap?['name'],
           'email': userMap?['email'],
           'uid': userMap?['uid'],
           'isAdmin': false,
-        });
+        };
+        membersList.add(temp);
+        newMembersList.add(temp);
+        addedUserName = '$addedUserName${userMap?['name']}, ';
         userMap = null;
       });
     } else {
       showSnackBar(context, '${userMap?['name']} Already Added !');
-    }
-  }
-
-  void onRemoveResult(int i) async {
-    if (membersList[i]['uid'] != _auth.currentUser?.uid) {
-      setState(() {
-        membersList.removeAt(i);
-      });
-    } else {
-      showSnackBar(context, 'You can not Remove yourself');
     }
   }
 
@@ -114,11 +95,9 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
                     trailing: IconButton(
                         icon: Icon(Icons.done), onPressed: onSearchResult),
                   )
-                : Container(
-
-            ),
+                : Container(),
             TextField(
-              controller: searchUserCon,
+              controller: searchUser,
               decoration: InputDecoration(
                   label: Text('Search User with their name'),
                   enabledBorder: OutlineInputBorder(
@@ -129,13 +108,13 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
             heightGap(10),
             ElevatedButton(
               onPressed: () {
-                String search = searchUserCon.value.text;
+                String search = searchUser.value.text;
                 onSearch(search);
-                searchUserCon.clear();
+                searchUser.clear();
               },
               child: Text('Search'),
             ),
-           heightGap(10),
+            heightGap(10),
             Flexible(
               child: ListView.builder(
                 shrinkWrap: true,
@@ -145,13 +124,6 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
                     title: Text(membersList[index]['name']),
                     subtitle: Text(membersList[index]['email']),
                     leading: Icon(Icons.person),
-                    trailing: IconButton(
-                      onPressed: () => onRemoveResult(index),
-                      icon: const Icon(
-                        Icons.cancel,
-                        color: Colors.red,
-                      ),
-                    ),
                   );
                 },
               ),
@@ -159,21 +131,40 @@ class _AddMembersInGroupState extends State<AddMembersInGroup> {
           ],
         ),
       ),
-      floatingActionButton: membersList.length >= 2
-          ? FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CreateNewGroup(
-                      membersList: membersList,
-                    ),
-                  ),
-                );
-              },
-              child: Icon(Icons.done),
-            )
-          : Container(),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.done),
+        onPressed: () async {
+          await _firestore.collection('groups').doc(widget.groupId).update(
+            {
+              'members': membersList,
+            },
+          );
+          await _firestore
+              .collection('groups')
+              .doc(widget.groupId)
+              .collection('chats')
+              .add({
+            'message': '${_auth.currentUser?.displayName} added $addedUserName',
+            'type': 'notify',
+            'time': FieldValue.serverTimestamp(),
+          });
+          for(int i = 0 ; i<newMembersList.length; i++){
+            String uid = newMembersList[i]['uid'];
+            await _firestore.collection('users')
+            .doc(uid)
+            .collection('groups')
+            .doc(widget.groupId)
+            .set({
+              'name' : widget.groupName,
+              'id' : widget.groupId,
+            });
+          }
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => GroupsScreen()),
+              (route) => false);
+        },
+      ),
     );
   }
 }

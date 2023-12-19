@@ -21,7 +21,6 @@ class _GroupsScreenState extends State<GroupsScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getAvailableGroup();
   }
@@ -32,11 +31,13 @@ class _GroupsScreenState extends State<GroupsScreen> {
         .doc(_auth.currentUser?.uid)
         .collection('groups')
         .get()
-        .then((value) {
-          setState(() {
-            groupList = value.docs;
-          });
-    });
+        .then(
+      (value) {
+        setState(() {
+          groupList = value.docs;
+        });
+      },
+    );
   }
 
   @override
@@ -46,32 +47,50 @@ class _GroupsScreenState extends State<GroupsScreen> {
         title: Text('Groups'),
         backgroundColor: Colors.blue,
       ),
-      body: Container(
-        child: ListView.builder(
-          itemCount: groupList.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => GroupChatScreen()));
+      body: groupList.length == 0
+          ? const Center(
+              child: Text(
+                'No Groups',
+                style: TextStyle(fontSize: 30),
+              ),
+            )
+          : ListView.builder(
+              itemCount: groupList.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => GroupChatScreen(
+                          groupId: groupList[index]['id'],
+                          groupName: groupList[index]['name'],
+                        ),
+                      ),
+                    );
+                  },
+                  title: Text(
+                    groupList[index]['name'],
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  leading: const Icon(
+                    Icons.groups,
+                    size: 30,
+                  ),
+                );
               },
-              title: Text(groupList[index]['name'],style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
-              leading: Icon(Icons.groups,size: 30,),
-            );
-          },
-        ),
-      ),
+            ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: (){
+        onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddMembersInGroup(),
+              builder: (context) => const AddMembersInGroup(),
             ),
           );
         },
         tooltip: 'Create New Group',
+        child: const Icon(Icons.add),
       ),
     );
   }

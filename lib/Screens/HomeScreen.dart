@@ -17,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Map<String, dynamic>? userMap;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+  List usersList = [];
   final TextEditingController searchController = TextEditingController();
 
   @override
@@ -29,7 +29,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void getAllUsersList() async {
-    var list = await _firestore.collection('users');
+    await _firestore.collection('users').get().then((value) {
+      setState(() {
+        usersList = value.docs;
+      });
+    });
   }
 
   void setStatus(String status) async {
@@ -85,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         actions: [
           IconButton(
             onPressed: () {
-              setStatus('Offline');
+              setStatus('Logged Out');
               FirebaseAuthMethods(FirebaseAuth.instance).logOut(context);
             },
             icon: const Icon(Icons.exit_to_app),
@@ -124,7 +128,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       searchController.clear();
                       String? u1 = _auth.currentUser?.displayName;
                       String chattingId = chatId(u1!, userMap?['name']);
-                      print(chattingId);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -139,29 +142,40 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     trailing: Icon(Icons.message),
                   )
                 : Container(),
-            /*Expanded(
+            Expanded(
               child: Container(
-                color: Colors.grey,
-                child: StreamBuilder(
-                  stream: _firestore.collection('users').snapshots(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>>
-                          snapshot) {
-                    return ListView.builder(itemBuilder: (context,index){
-                      return ListTile(
-                        title: Text(snapshot.data.toString()),
-                      );
-                    },);
+                child: ListView.builder(
+                  itemCount: usersList.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      /*onTap: () {
+                        String? u1 = _auth.currentUser?.displayName;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatScreen(
+                                userMap: usersList[index],
+                                chattingId: chatId(u1!, usersList[index]['name']),),
+                          ),
+                        );
+                      },*/
+                      leading: Icon(
+                        Icons.person,
+                        size: 38,
+                      ),
+                      title: Text(usersList[index]['name']),
+                      subtitle: Text(usersList[index]['status']),
+                    );
                   },
                 ),
               ),
-            ),*/
+            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.group),
-        onPressed: (){
+        onPressed: () {
           Navigator.pushNamed(context, 'groups');
         },
       ),
