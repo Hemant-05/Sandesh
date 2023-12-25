@@ -26,12 +26,20 @@ class FirebaseAuthMethods {
         await _firesotre
             .collection('users')
             .doc(user.uid)
-            .set({'name': name, 'email': email, 'status': "Unavailable",'uid' : _auth.currentUser?.uid});
+            .set({
+          'name': name,
+          'email': email,
+          'status': "Unavailable",
+          'uid' : _auth.currentUser?.uid,
+          'photo' : '',
+          'number' : '',
+          'about' : '',
+            });
         await sendEmailVerification(context);
       }
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'week-password') {
-        showSnackBar(context, 'week password');
+      if (e.code == 'weak-password') {
+        showSnackBar(context, 'weak password');
       } else {
         showSnackBar(context, e.message!);
       }
@@ -55,6 +63,9 @@ class FirebaseAuthMethods {
       user = userCredential.user;
       if(user != null){
         await _firesotre.collection('users').doc(user.uid).set({
+          'photo' : '',
+          'number' : '',
+          'about' : '',
           'name' : user.displayName,
           'email' : user.email,
           'status' : "Unavailable",
@@ -97,7 +108,7 @@ class FirebaseAuthMethods {
     try {
       await _auth
           .signOut()
-          .then((value) => {Navigator.pushReplacementNamed(context, 'signup')});
+          .then((value) => {Navigator.pushNamedAndRemoveUntil(context, 'signup',(route) => false,),});
     } catch (e) {
       showSnackBar(context, "Error while Logging out !!");
     }

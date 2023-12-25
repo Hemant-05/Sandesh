@@ -23,7 +23,8 @@ class _LogInScreenState extends State<LogInScreen> {
               user = value,
               if (value != null)
                 {
-                  Navigator.pushNamedAndRemoveUntil(context, 'home', (route) => false),
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, 'home', (route) => false),
                   showSnackBar(context, "Account Log in as ${value.email}")
                 }
               else
@@ -36,32 +37,21 @@ class _LogInScreenState extends State<LogInScreen> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     var h = size.height;
-    var w = size.width;
     return Scaffold(
-      backgroundColor: color,
+      backgroundColor: color1,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(14.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              heightGap(h * 0.2),
-              cusBoldText('Log In', h * .06),
+              heightGap(h * 0.16),
+              cusBoldText('Log In',color2, h * .06),
               heightGap(h * .12),
               cusTextField('Enter you Email', emailController),
               heightGap(h * .04),
               cusTextField('Enter you password', passController),
-              heightGap(h * .03),
-              ElevatedButton(
-                  onPressed: () {
-                    var email = emailController.text;
-                    var pass = passController.text;
-                    User? user = logInUser(email, pass);
-                  },
-                  child: Text("Log In")),
-              SizedBox(
-                height: 40,
-              ),
+              heightGap(h * .04),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -69,16 +59,19 @@ class _LogInScreenState extends State<LogInScreen> {
                     onTap: () async {
                       await FirebaseAuthMethods(FirebaseAuth.instance)
                           .signInWithGoogle(context)
-                          .then((user) => {
-                                if (user != null)
-                                  {
-                                    Navigator.pushNamedAndRemoveUntil(context, 'home', (route) => false),
-                                    showSnackBar(
-                                        context, "Logged as ${user.email}")
-                                  }
-                                else
-                                  {showSnackBar(context, "Error !!!!!")}
-                              });
+                          .then(
+                            (user) => {
+                              if (user != null)
+                                {
+                                  Navigator.pushNamedAndRemoveUntil(
+                                      context, 'home', (route) => false),
+                                  showSnackBar(
+                                      context, "Logged as ${user.email}")
+                                }
+                              else
+                                {showSnackBar(context, "Error !!!!!")}
+                            },
+                          );
                     },
                     child: Image.asset(
                       'assets/images/icon_gg.png',
@@ -93,14 +86,24 @@ class _LogInScreenState extends State<LogInScreen> {
                     onPressed: () async {
                       print('facebook \n Nothing');
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.facebook,
                       color: Colors.blue,
                       size: 36,
                     ),
                   ),
                 ],
-              )
+              ),
+              heightGap(h * .16),
+              customButton(
+                () {
+                  var email = emailController.text;
+                  var pass = passController.text;
+                  logInUser(email, pass);
+                },
+                'Login',
+                (h * .04),
+              ),
             ],
           ),
         ),

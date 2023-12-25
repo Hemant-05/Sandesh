@@ -16,6 +16,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController passcon = TextEditingController();
   TextEditingController namecon = TextEditingController();
   TextEditingController numbercon = TextEditingController();
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -33,6 +34,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
               if (user != null)
                 {
                   Navigator.pushReplacementNamed(context, 'home'),
+                  setState(() {
+                    isLoading = false;
+                  }),
                   showSnackBar(context, "Sign Up as ${user.email}")
                 }
               else
@@ -49,7 +53,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     var h = size.height;
     var w = size.width;
     return Scaffold(
-      backgroundColor: color,
+      backgroundColor: color1,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -57,7 +61,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               heightGap(h * 0.14),
-              cusBoldText("Sign Up", (h * .06)),
+              cusBoldText("Sign Up",color2, (h * .06)),
               heightGap((h * 0.12)),
               cusTextField("Enter Email", emailcon),
               heightGap(h * .02),
@@ -72,27 +76,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Text(
                   'Already have an account',
                   style: TextStyle(
+                      fontWeight: FontWeight.bold,
                       fontSize: h * 0.02,
                       color: Colors.black,
                       decoration: TextDecoration.underline),
                 ),
               ),
               heightGap(h * 0.15),
-              ElevatedButton(
-                onPressed: () {
+              isLoading? CircularProgressIndicator() :
+              customButton(
+                () {
+                  setState(() {
+                    isLoading = true;
+                  });
                   var email = emailcon.value.text;
                   var pass = passcon.value.text;
                   var name = namecon.value.text;
                   signUpUser(email, pass, name);
                 },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "Sign up",
-                    style: TextStyle(fontSize: (h * 0.026)),
-                  ),
-                ),
-              ),
+                'Sign up',
+                (h * .038),
+              )
             ],
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sandesh/Group_Works/GroupsScreen.dart';
 import 'package:sandesh/Screens/HomeScreen.dart';
 import 'package:sandesh/Screens/LoginScreen.dart';
@@ -10,18 +11,19 @@ import 'package:sandesh/Screens/UserProfileScreen.dart';
 import 'package:sandesh/Screens/WelcomScreen.dart';
 import 'package:sandesh/firebase_options.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Sandesh',
       debugShowCheckedModeBanner: false,
@@ -31,15 +33,12 @@ class MyApp extends StatelessWidget {
       ),
       home: const SplashScreen(),
       routes: {
-        'splash' : (context) => const SplashScreen(),
+        'splash': (context) => const SplashScreen(),
         'welcome': (context) => const WelcomScreen(),
-        'signup' : (context) => const SignUpScreen(),
+        'signup': (context) => const SignUpScreen(),
         'login': (context) => const LogInScreen(),
-        'home' : (context) => const HomeScreen(),
-        'userprofile' :(context) =>  UserProfileScreen(),
-        'otherprofile' : (context) => const OtherUserProfileScreen(),
-        'groups' : (context) => const GroupsScreen(),
-        //'chat' : (context) => const ChatScreen(),
+        'home': (context) => const HomeScreen(),
+        'groups': (context) => const GroupsScreen(),
       },
     );
   }

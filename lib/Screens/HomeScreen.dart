@@ -3,8 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sandesh/Custom_item/Custom_widgets.dart';
 import 'package:sandesh/Firebase_Services/Firebase_authMethod.dart';
-import 'package:sandesh/Group_Works/GroupsScreen.dart';
 import 'package:sandesh/Screens/ChatScreen.dart';
+import 'package:sandesh/Screens/UserProfileScreen.dart';
+import 'package:sandesh/utils/Colors.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,8 +18,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Map<String, dynamic>? userMap;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  List usersList = [];
+  List<Map<String, dynamic>> usersList = [];
   final TextEditingController searchController = TextEditingController();
+  Map<String, dynamic>? currentUserData;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -31,7 +34,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void getAllUsersList() async {
     await _firestore.collection('users').get().then((value) {
       setState(() {
-        usersList = value.docs;
+        String? userUid = _auth.currentUser?.uid;
+        for (int i = 0; i < value.size; i++) {
+          userMap = value.docs[i].data();
+          if (userMap?['uid'] != userUid) {
+            usersList.add(userMap!);
+          } else {
+            currentUserData = value.docs[i].data();
+          }
+        }
+        isLoading = false;
       });
     });
   }
@@ -51,25 +63,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  void onSearch(String search) async {
-    FirebaseFirestore _firestore = FirebaseFirestore.instance;
-    try {
-      await _firestore
-          .collection('users')
-          .where('name', isEqualTo: search)
-          .get()
-          .then((value) {
-        setState(
-          () {
-            userMap = value.docs[0].data();
-          },
-        );
-        print(userMap);
-      });
-    } catch (e) {
-      userMap = null;
-      print(e.toString());
-    }
+  Future onRefresh() async {
+    setState(() {
+      usersList.clear();
+      getAllUsersList();
+    });
   }
 
   String chatId(String user1, String user2) {
@@ -82,102 +80,116 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Home screen'),
-        backgroundColor: Colors.blue,
-        actions: [
-          IconButton(
-            onPressed: () {
-              setStatus('Logged Out');
-              FirebaseAuthMethods(FirebaseAuth.instance).logOut(context);
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          UserProfileScreen(userData : currentUserData!)));
             },
-            icon: const Icon(Icons.exit_to_app),
-            tooltip: 'Log Out',
-          )
-        ],
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            Text(
-              'Account : \n ${_auth.currentUser?.email}',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            ),
-            heightGap(20),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: TextField(
-                controller: searchController,
-                decoration: InputDecoration(hintText: 'ex. user343@gmail.com'),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                var search = searchController.value.text;
-                setState(() {
-                  onSearch(search);
-                });
+            child: myAppBar(size),
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () {
+                return onRefresh();
               },
-              child: Text('Search'),
-            ),
-            userMap != null
-                ? ListTile(
-                    onTap: () {
-                      searchController.clear();
-                      String? u1 = _auth.currentUser?.displayName;
-                      String chattingId = chatId(u1!, userMap?['name']);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatScreen(
-                              userMap: userMap ?? {}, chattingId: chattingId),
-                        ),
-                      );
-                    },
-                    leading: Icon(Icons.person),
-                    title: Text(userMap?['name']),
-                    subtitle: Text(userMap?['email']),
-                    trailing: Icon(Icons.message),
-                  )
-                : Container(),
-            Expanded(
               child: Container(
-                child: ListView.builder(
-                  itemCount: usersList.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      /*onTap: () {
-                        String? u1 = _auth.currentUser?.displayName;
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatScreen(
-                                userMap: usersList[index],
-                                chattingId: chatId(u1!, usersList[index]['name']),),
-                          ),
-                        );
-                      },*/
-                      leading: Icon(
-                        Icons.person,
-                        size: 38,
-                      ),
-                      title: Text(usersList[index]['name']),
-                      subtitle: Text(usersList[index]['status']),
-                    );
-                  },
+                decoration: BoxDecoration(
+                  color: isLoading? Colors.transparent : color2,
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(52),
+                    topLeft: Radius.circular(52),
+                  ),
                 ),
+                child: isLoading
+                    ? Container(
+                        width: 50,
+                        height: 50,
+                        child: CircularProgressIndicator(),
+                )
+                    : ListView.builder(
+                        itemCount: usersList.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            onTap: () {
+                              String? u1 = _auth.currentUser?.displayName;
+                              String chattingId =
+                                  chatId(u1!, usersList[index]['name']);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChatScreen(
+                                      userMap: usersList[index],
+                                      chattingId: chattingId),
+                                ),
+                              );
+                            },
+                            leading: userPhoto(context, usersList[index]['photo'], size * .2, isLoading),
+                            title: Text(
+                              usersList[index]['name'],
+                              style: TextStyle(color: color1),
+                            ),
+                            subtitle: Text(
+                              usersList[index]['status'],
+                              style: TextStyle(color: color1),
+                            ),
+                          );
+                        },
+                      ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.group),
         onPressed: () {
           Navigator.pushNamed(context, 'groups');
         },
+      ),
+    );
+  }
+
+  Widget myAppBar(Size size) {
+    return Container(
+      height: size.height * .26,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          userPhoto(context, currentUserData?['photo'] , size * .7,isLoading),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                constraints: BoxConstraints(maxWidth: 200),
+                child: Text(
+                  '${_auth.currentUser?.displayName}',
+                  style: const TextStyle(
+                      fontSize: 40,
+                      overflow: TextOverflow.ellipsis,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              Container(
+                constraints: BoxConstraints(maxWidth: 200),
+                child: Text(
+                  '${currentUserData?['about'] == ''? 'Not set' : '${currentUserData?['about']}'}',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ],
+          ),
+          Container(),
+        ],
       ),
     );
   }
