@@ -10,7 +10,8 @@ import 'package:sandesh/utils/Colors.dart';
 import 'package:uuid/uuid.dart';
 
 class EditUserDetails extends StatefulWidget {
-  EditUserDetails({required this.userMap,super.key});
+  EditUserDetails({required this.userMap, super.key});
+
   Map<String, dynamic> userMap;
 
   @override
@@ -32,26 +33,43 @@ class _EditUserDetailsState extends State<EditUserDetails> {
     number_con = TextEditingController(text: '${widget.userMap['number']}');
     name_con = TextEditingController(text: '${widget.userMap['name']}');
   }
+
   void update() async {
     String about = about_con.text;
     String number = number_con.text;
     String name = name_con.text;
+    var map;
     await _firestore
         .collection('users')
-        .doc(widget.userMap?['uid'])
+        .doc(widget.userMap['uid'])
         .update({'about': '$about', 'number': '$number', 'name': '$name'});
-    Navigator.pushAndRemoveUntil(context,
-        MaterialPageRoute(builder: (_) => HomeScreen()), (route) => false);
+    await _firestore
+        .collection('users')
+        .doc('${widget.userMap['uid']}')
+        .get()
+        .then((value) {
+      map = value.data();
+    });
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => HomeScreen(currentUserData: map),
+        ),
+        (route) => false);
   }
 
   void updatePicture() async {
     ImagePicker _picker = ImagePicker();
-    await _picker.pickImage(source: ImageSource.gallery).then((x) {
+    await _picker
+        .pickImage(source: ImageSource.gallery, imageQuality: 30)
+        .then((x) {
       if (x != null) {
         profileImage = File(x.path);
         uploadPicture();
       }
     });
+    int size = profileImage!.lengthSync();
+    print('Size is : $size');
   }
 
   uploadPicture() async {
@@ -107,10 +125,11 @@ class _EditUserDetailsState extends State<EditUserDetails> {
             children: [
               InkWell(
                   onTap: () {
-                     updatePicture();
-                     print('on Tap fun : ${widget.userMap['photo']}');
+                    updatePicture();
+                    print('on Tap fun : ${widget.userMap['photo']}');
                   },
-                  child: userPhoto(context, '${widget.userMap['photo']}',size,isLoading)),
+                  child: userPhoto(
+                      context, '${widget.userMap['photo']}', size, isLoading)),
               heightGap(20),
               cusTextField('Set your name', name_con),
               heightGap(18),
@@ -158,13 +177,14 @@ class _EditUserDetailsState extends State<EditUserDetails> {
               ),
             ),
             Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: IconButton(
-                  icon: Icon(Icons.done, color: color1),
-                  onPressed: () {
-                    update();
-                  },
-                ),),
+              padding: const EdgeInsets.all(4.0),
+              child: IconButton(
+                icon: Icon(Icons.done, color: color1),
+                onPressed: () {
+                  update();
+                },
+              ),
+            ),
           ],
         ),
       ),

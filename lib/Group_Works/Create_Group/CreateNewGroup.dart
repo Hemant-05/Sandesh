@@ -71,7 +71,7 @@ class _CreateNewGroupState extends State<CreateNewGroup> {
             ElevatedButton(
               onPressed: (){
                 createGroup(groupNameCon.value.text);
-                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> HomeScreen()), (route) => false);
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> HomeScreen(currentUserData: {},)), (route) => false);
               },
               child: Text('Create Group'),
             ),

@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sandesh/Custom_item/Custom_widgets.dart';
+import 'package:sandesh/Screens/HomeScreen.dart';
 import 'package:sandesh/utils/Colors.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,20 +14,29 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  Map<String, dynamic>? map;
 
   @override
   void initState() {
     super.initState();
+    if(_auth.currentUser != null) getCurrentUserDetails();
     Future.delayed(
-      Duration(seconds: 1),
+      Duration(seconds: 3),
       () {
         if (_auth.currentUser != null) {
-          Navigator.pushReplacementNamed(context, 'home');
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> HomeScreen(currentUserData: map!),),);
         } else {
           Navigator.pushReplacementNamed(context, 'welcome');
         }
       },
     );
+  }
+
+  void getCurrentUserDetails() {
+     _firestore.collection('users').doc('${_auth.currentUser?.uid}').get().then((value){
+      map = value.data();
+    });
   }
 
   @override

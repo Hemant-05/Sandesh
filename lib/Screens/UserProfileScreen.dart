@@ -3,12 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sandesh/Custom_item/Custom_widgets.dart';
+import 'package:sandesh/Custom_item/ShowImageScreen.dart';
 import 'package:sandesh/Firebase_Services/Firebase_authMethod.dart';
 import 'package:sandesh/Screens/EditUserDetails.dart';
 import 'package:sandesh/utils/Colors.dart';
 
 class UserProfileScreen extends StatefulWidget {
   UserProfileScreen({required this.userData, super.key});
+
   Map<String, dynamic> userData;
 
   @override
@@ -27,14 +29,30 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           myAppBar(context, size),
-          userPhoto(context,'${widget.userData['photo']}', size,false),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => showImageScreen(
+                      tag: '${widget.userData['photo']}',
+                      url: widget.userData['photo']),
+                ),
+              );
+            },
+            child: Hero(
+              tag: '${widget.userData['photo']}',
+              child: userPhoto(
+                  context, '${widget.userData['photo']}', size, false),
+            ),
+          ),
           bottomBar(context, size)
         ],
       ),
     );
   }
 
-  Widget myAppBar(BuildContext context, Size size){
+  Widget myAppBar(BuildContext context, Size size) {
     return Container(
       height: size.height * .11,
       decoration: BoxDecoration(
@@ -114,7 +132,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => EditUserDetails(userMap: widget.userData),
+                        builder: (_) =>
+                            EditUserDetails(userMap: widget.userData),
                       ),
                     );
                   },
@@ -145,4 +164,3 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     );
   }
 }
-

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sandesh/Custom_item/Custom_widgets.dart';
+import 'package:sandesh/Custom_item/ShowImageScreen.dart';
 import 'package:sandesh/utils/Colors.dart';
 
 class OtherUserProfileScreen extends StatefulWidget {
@@ -22,7 +23,23 @@ class _OtherUserProfileScreenState extends State<OtherUserProfileScreen> {
           children: [
             myAppBar(context, size),
             heightGap(20),
-            userPhoto(context, '${widget.map['photo']}', size, false),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => showImageScreen(
+                        tag: '${widget.map['photo']}',
+                        url: widget.map['photo']),
+                  ),
+                );
+              },
+              child: Hero(
+                tag: '${widget.map['photo']}',
+                child: userPhoto(
+                    context, '${widget.map['photo']}', size, false),
+              ),
+            ),
             heightGap(20),
             bottomBar(context, size),
           ],

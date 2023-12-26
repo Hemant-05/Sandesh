@@ -37,7 +37,6 @@ class MyApp extends StatelessWidget {
         'welcome': (context) => const WelcomScreen(),
         'signup': (context) => const SignUpScreen(),
         'login': (context) => const LogInScreen(),
-        'home': (context) => const HomeScreen(),
         'groups': (context) => const GroupsScreen(),
       },
     );

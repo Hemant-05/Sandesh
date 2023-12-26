@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sandesh/Custom_item/Custom_widgets.dart';
+import 'package:sandesh/Custom_item/ShowImageScreen.dart';
 import 'package:sandesh/Screens/OtherUserProfile.dart';
 import 'package:sandesh/utils/Colors.dart';
 import 'package:uuid/uuid.dart';
@@ -23,18 +24,14 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _msg = TextEditingController();
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
   File? imageFile;
-
   bool isSelected = false;
 
   Future getImages() async {
     ImagePicker _picker = ImagePicker();
-    await _picker.pickImage(source: ImageSource.gallery).then(
+    await _picker.pickImage(source: ImageSource.gallery, imageQuality: 30).then(
       (value) {
         if (value != null) {
           imageFile = File(value.path);
@@ -299,7 +296,7 @@ class _ChatScreenState extends State<ChatScreen> {
               constraints: BoxConstraints(
                 maxWidth: size.width * .5
               ),
-              child: StreamBuilder<DocumentSnapshot>(
+              child: StreamBuilder<DocumentSnapshot<Object?>>(
                 stream: _firestore
                     .collection('users')
                     .doc(widget.userMap['uid'])
@@ -337,29 +334,6 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class showImageScreen extends StatelessWidget {
-  String url;
-  String tag;
-
-  showImageScreen({super.key, required this.tag, required this.url});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Container(
-        alignment: Alignment.center,
-        child: Hero(
-          tag: '$tag',
-          child: Image.network(
-            url,
-          ),
         ),
       ),
     );
